@@ -1,0 +1,80 @@
+#!/bin/bash
+# Gerrit comment-added hook
+
+LOGFILE=/tmp/gerrit-comment-added.log
+CFG=${BASH_SOURCE[0]%/*}/config.env
+if [ ! -f "${CFG}" ] ; then
+    echo "Cannot find ${CFG} ; I give up. You're fired."
+    exit 1
+fi
+. ${BASH_SOURCE[0]%/*}/config.env
+
+CHANGEID=
+IS_DRAFT=
+CHANGEURL=
+PROJECT=
+BRANCH=
+TOPIC=
+AUTHOR=
+COMMIT=
+COMMENT=
+SCORE=
+
+# /srv/gerrit/current/hooks/comment-added
+#  --change I6d04c505d7a033a4d205bd7782fbe276b52e0946
+#  --is-draft false
+#  --change-url https://gerrit.example.com/44
+#  --change-owner Samwise Gamgee (sam@example.com)
+#  --project aerofs
+#  --branch master
+#  --topic typofix
+#  --author Frodo Baggins (frodo@example.com)
+#  --commit 7136e9684f03c69c1c9db1756ab3d6f9af2e2327
+#  --comment Patch Set 5: the One Patchset
+
+while [ $# -gt 0 ]
+do
+	case "$1" in
+		(--change)     CHANGEID="$2";  shift ;;
+		(--is-draft)   IS_DRAFT="$2";  shift ;;
+		(--change-url) CHANGEURL="$2"; shift ;;
+		(--project)    PROJECT="$2";   shift ;;
+		(--branch)     BRANCH="$2";    shift ;;
+		(--topic)      TOPIC="$2";     shift ;;
+		(--author)     AUTHOR="$2";    shift ;;
+		(--commit)     COMMIT="$2";    shift ;;
+		(--comment)    COMMENT="$2";   shift ;;
+		(--change-owner) OWNER="$2";   shift ;;
+		(--Code-Review) SCORE="$2";    shift ;;
+		(*) DieMessage "I don't understand the option '$1'.  Exiting." ;;
+	esac
+	shift
+done
+
+# ignore drafts (disabled for now)
+#[[ "$IS_DRAFT" != "false" ]] && exit 0
+
+if [[ -z "$CHANGEID" ]] ||   \
+	[[ -z "$CHANGEURL" ]] || \
+	[[ -z "$PROJECT" ]] ||   \
+	[[ -z "$BRANCH" ]] ||    \
+	[[ -z "$TOPIC" ]] ||     \
+	[[ -z "$AUTHOR" ]] ||    \
+	[[ -z "$COMMENT" ]] ||   \
+	[[ -z "$COMMIT" ]] ; then
+	DieMessage "bad args"
+fi
+
+# make 2 -> +2
+if [[ "$SCORE" == "1" ]] || [[ "$SCORE" == "2" ]] ; then
+	SCORE="+$SCORE"
+fi
+if [[ "$SCORE" == "" ]] ; then
+	SCORE_BLOCK=""
+else
+	SCORE_BLOCK=" ($SCORE)"
+fi
+
+
+MESSAGE="$AUTHOR commented on $CHANGEURL $SCORE_BLOCK: $COMMENT"
+DoEcho "$MESSAGE"

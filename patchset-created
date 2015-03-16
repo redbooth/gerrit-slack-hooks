@@ -1,0 +1,73 @@
+#!/bin/bash
+# Gerrit patchset-created hook
+
+LOGFILE=/tmp/gerrit-patchset-created.log
+CFG=${BASH_SOURCE[0]%/*}/config.env
+if [ ! -f "${CFG}" ] ; then
+    echo "Cannot find ${CFG} ; I give up. You're fired."
+    exit 1
+fi
+. ${BASH_SOURCE[0]%/*}/config.env
+
+CHANGEID=
+IS_DRAFT=
+CHANGEURL=
+PROJECT=
+BRANCH=
+TOPIC='master'
+UPLOADER=
+COMMIT=
+PATCHSET=
+
+INVOCATION="$0 $@"
+# SAMPLE invocation:
+# /srv/gerrit/current/hooks/patchset-created --change Ib62ec1f45472c4feca8c0caf1c2b8ee6a2e7b1c6
+#  --is-draft false
+#  --kind REWORK
+#  --change-url https://gerrit.example.org/3922
+#  --change-owner Bilbo Baggins (bilbo@example.com)
+#  --project aerofs
+#  --branch master
+#  --topic there_and_back_again
+#  --uploader Bilbo Baggins (bilbo@example.com)
+#  --commit 9e9324c4efa5fcad9857e0ae4372a248707d010b
+#  --patchset 1
+#
+
+while [ $# -gt 0 ]
+do
+	case "$1" in
+		(--change)     CHANGEID="$2";  shift ;;
+		(--change-owner)  OWNER="$2";  shift ;;
+		(--kind)       KIND="$2";  shift ;;
+		(--is-draft)   IS_DRAFT="$2";  shift ;;
+		(--change-url) CHANGEURL="$2"; shift ;;
+		(--project)    PROJECT="$2";   shift ;;
+		(--branch)     BRANCH="$2";    shift ;;
+		(--topic)      TOPIC="$2";     shift ;;
+		(--uploader)   UPLOADER="$2";  shift ;;
+		(--commit)     COMMIT="$2";    shift ;;
+		(--patchset)   PATCHSET="$2";  shift ;;
+		(*) DieMessage "I don't understand the option '$1'.  Exiting." ;;
+	esac
+	shift
+done
+
+# ignore drafts
+[[ "$IS_DRAFT" != "false" ]] && exit 0
+
+if [[ -z "$CHANGEID" ]] ||   \
+	[[ -z "$CHANGEURL" ]] || \
+	[[ -z "$PROJECT" ]] ||   \
+	[[ -z "$BRANCH" ]] ||    \
+	[[ -z "$TOPIC" ]] ||    \
+	[[ -z "$UPLOADER" ]] || \
+	[[ -z "$PATCHSET" ]] || \
+	[[ -z "$COMMIT" ]] ; then
+	DieMessage "bad args"
+	exit 1
+fi
+
+MESSAGE="$UPLOADER uploaded $TOPIC (patchset $PATCHSET) for $PROJECT/$BRANCH $CHANGEURL"
+echo "$MESSAGE" | SendMessage
+

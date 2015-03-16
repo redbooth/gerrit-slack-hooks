@@ -1,0 +1,59 @@
+#!/bin/bash
+# Gerrit post-merge hook
+
+LOGFILE=/tmp/gerrit-change-merged.log
+CFG=${BASH_SOURCE[0]%/*}/config.env
+if [ ! -f "${CFG}" ] ; then
+    echo "Cannot find ${CFG} ; I give up. You're fired."
+    exit 1
+fi
+. ${BASH_SOURCE[0]%/*}/config.env
+
+# Sample invocation:
+# /srv/gerrit/current/hooks/change-merged --change I4a7a90f3de3e6d68f022dc84c8be5b5de689a80f
+#  --change-url https://gerrit.example.com/3875
+#  --change-owner Bilbo Baggins (bilbo@example.com)
+#  --project aerofs
+#  --branch master
+#  --submitter Bilbo Baggins (bilbo@example.com)
+#  --commit 621b24834f982de910e448fecd3376e1c04802e5
+#  --newrev 621b24834f982de910e448fecd3376e1c04802e5
+
+CHANGEID=
+CHANGEURL=
+PROJECT=
+BRANCH=
+SUBMITTER=
+COMMIT=
+while [ $# -gt 0 ]
+do
+	case "$1" in
+		(--change)     CHANGEID="$2";  shift ;;
+		(--change-url) CHANGEURL="$2"; shift ;;
+		(--change-owner)   OWNER="$2"; shift ;;
+		(--project)    PROJECT="$2";   shift ;;
+		(--branch)     BRANCH="$2";    shift ;;
+		(--submitter)  SUBMITTER="$2"; shift ;;
+		(--commit)     COMMIT="$2";    shift ;;
+		(--newrev)     NEWREV="$2";    shift ;;
+		(--topic)      shift ;; # ignore --topic for now, but it's the branch name from the changeset
+		(*) DieMessage "I don't understand the option '$1'.  Exiting." ;;
+	esac
+	shift
+done
+
+if [[ -z "$CHANGEID" ]] ||   \
+	[[ -z "$CHANGEURL" ]] || \
+	[[ -z "$PROJECT" ]] ||   \
+	[[ -z "$BRANCH" ]] ||    \
+	[[ -z "$SUBMITTER" ]] || \
+	[[ -z "$COMMIT" ]] ; then
+	DieMessage "bad args $@ "
+fi
+
+AUTHOR_NAME=$(git --git-dir="$GIT_DIR" show -s --format=%an $COMMIT )
+SUBJECT=$(git --git-dir="$GIT_DIR" show -s --format=%s $COMMIT )
+
+MESSAGE="$SUBMITTER merged $AUTHOR_NAME's \"$SUBJECT\" into $PROJECT/$BRANCH $CHANGEURL"
+echo "$MESSAGE" | SendMessage
+
