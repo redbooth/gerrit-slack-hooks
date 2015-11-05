@@ -46,6 +46,7 @@ do
 		(--comment)    COMMENT="$2";   shift ;;
 		(--change-owner) OWNER="$2";   shift ;;
 		(--Code-Review) SCORE="$2";    shift ;;
+		(--Verified)   VERIFIED="$2";  shift ;;
 		(*) DieMessage "I don't understand the option '$1'.  Exiting." ;;
 	esac
 	shift
@@ -54,15 +55,20 @@ done
 # ignore drafts (disabled for now)
 #[[ "$IS_DRAFT" != "false" ]] && exit 0
 
-if [[ -z "$CHANGEID" ]] ||   \
-	[[ -z "$CHANGEURL" ]] || \
-	[[ -z "$PROJECT" ]] ||   \
-	[[ -z "$BRANCH" ]] ||    \
-	[[ -z "$TOPIC" ]] ||     \
-	[[ -z "$AUTHOR" ]] ||    \
-	[[ -z "$COMMENT" ]] ||   \
-	[[ -z "$COMMIT" ]] ; then
-	DieMessage "bad args"
+if [ -z "$CHANGEID" ] ; then
+	DieMessage "--change not specified"
+elif [ -z "$CHANGEURL" ] ; then
+	DieMessage "--change-url not specified"
+elif [ -z "$PROJECT" ] ; then
+	DieMessage "--project not specified"
+elif [ -z "$BRANCH" ] ; then
+	DieMessage "--branch not specified"
+elif [ -z "$AUTHOR" ] ; then
+	DieMessage "--author not specified"
+elif [ -z "$COMMENT" ] ; then
+	DieMessage "--comment not specified"
+elif [ -z "$COMMIT" ] ; then
+	DieMessage "--commit not specified"
 fi
 
 # make 2 -> +2
