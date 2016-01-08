@@ -83,4 +83,4 @@ fi
 
 
 MESSAGE="$AUTHOR commented on $CHANGEURL $SCORE_BLOCK: $COMMENT"
-DoEcho "$MESSAGE"
+echo "$MESSAGE" | SendMessage
