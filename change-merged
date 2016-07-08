@@ -21,10 +21,13 @@ fi
 
 CHANGEID=
 CHANGEURL=
+OWNER=
 PROJECT=
 BRANCH=
 SUBMITTER=
 COMMIT=
+NEWREV=
+
 while [ $# -gt 0 ]
 do
 	case "$1" in
@@ -51,9 +54,8 @@ if [[ -z "$CHANGEID" ]] ||   \
 	DieMessage "bad args $@ "
 fi
 
-AUTHOR_NAME=$(git --git-dir="$GIT_DIR" show -s --format=%an $COMMIT )
-SUBJECT=$(git --git-dir="$GIT_DIR" show -s --format=%s $COMMIT )
+AUTHOR_NAME=$(git --git-dir="$GIT_DIR" show -s --format=%an $COMMIT)
+SUBJECT=$(git --git-dir="$GIT_DIR" show -s --format=%s $COMMIT)
 
-MESSAGE="$SUBMITTER merged $AUTHOR_NAME's \"$SUBJECT\" into $PROJECT/$BRANCH $CHANGEURL"
+MESSAGE="${SUBMITTER%% (*} merged $CHANGEURL into \`$PROJECT\`: $SUBJECT"
 echo "$MESSAGE" | SendMessage
-
