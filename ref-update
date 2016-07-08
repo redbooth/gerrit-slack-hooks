@@ -1,0 +1,45 @@
+#!/bin/bash
+# Gerrit ref-update hook
+PROJECT=
+REFNAME=
+UPLOADER=
+OLDREV=
+NEWREV=
+
+INVOCATION="$0 $@"
+# /srv/gerrit/current/hooks/ref-updated
+#  --project <project name>
+#  --refname <refname>
+#  --uploader <uploader>
+#  --oldrev <sha1>
+#  --newrev <sha1>
+
+while [ $# -gt 0 ]
+do
+   case "$1" in
+      (--project)     PROJECT="$2";  shift ;;
+      (--refname)     REFNAME="$2";  shift ;;
+      (--uploader)    UPLOADER="$2";  shift ;;
+      (--oldrev)      OLDREV="$2";  shift ;;
+      (--newrev)      NEWREV="$2"; shift ;;
+      (*) DieMessage "I don't understand the option '$1'.  Exiting." ;;
+   esac
+   shift
+done
+
+if git diff-tree --no-color -p $NEWREV^\! | grep -q '<<''<<'
+then
+   shortrev=$(git rev-parse --short $NEWREV)
+   >&2 echo "$shortrev contains conflict markers"
+   exit 1
+fi
+
+case $PROJECT in
+   (arista|ops|gohbase)
+      if ! git log --format=%s -n 1 "$NEWREV" | sed -e 's/WIP//' -e 's/RFC//' | egrep -q '^([-_./a-zA-Z0-9]{2,32})(, [-_./a-zA-Z0-9]{2,32})*: '; then
+         >&2 echo 'First line of the commit message must be of the form: "package: short description" or "package1, package2: short description"'
+         git log --format=%s -n 1 "$NEWREV" | sed 's/^/ !   > /'
+         exit 1
+      fi
+      ;;
+esac
