@@ -14,7 +14,7 @@ IS_DRAFT=
 CHANGEURL=
 PROJECT=
 BRANCH=
-TOPIC='master'
+TOPIC=
 UPLOADER=
 COMMIT=
 PATCHSET=
@@ -60,7 +60,6 @@ if [[ -z "$CHANGEID" ]] ||   \
 	[[ -z "$CHANGEURL" ]] || \
 	[[ -z "$PROJECT" ]] ||   \
 	[[ -z "$BRANCH" ]] ||    \
-	[[ -z "$TOPIC" ]] ||    \
 	[[ -z "$UPLOADER" ]] || \
 	[[ -z "$PATCHSET" ]] || \
 	[[ -z "$COMMIT" ]] ; then

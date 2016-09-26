@@ -35,18 +35,20 @@ SCORE=
 while [ $# -gt 0 ]
 do
 	case "$1" in
-		(--change)     CHANGEID="$2";  shift ;;
-		(--is-draft)   IS_DRAFT="$2";  shift ;;
-		(--change-url) CHANGEURL="$2"; shift ;;
-		(--project)    PROJECT="$2";   shift ;;
-		(--branch)     BRANCH="$2";    shift ;;
-		(--topic)      TOPIC="$2";     shift ;;
-		(--author)     AUTHOR="$2";    shift ;;
-		(--commit)     COMMIT="$2";    shift ;;
-		(--comment)    COMMENT="$2";   shift ;;
-		(--change-owner) OWNER="$2";   shift ;;
-		(--Code-Review) SCORE="$2";    shift ;;
-		(--Verified)   VERIFIED="$2";  shift ;;
+		(--change)     CHANGEID="$2";  shift;;
+		(--is-draft)   IS_DRAFT="$2";  shift;;
+		(--change-url) CHANGEURL="$2"; shift;;
+		(--project)    PROJECT="$2";   shift;;
+		(--branch)     BRANCH="$2";    shift;;
+		(--topic)      TOPIC="$2";     shift;;
+		(--author)     AUTHOR="$2";    shift;;
+		(--commit)     COMMIT="$2";    shift;;
+		(--comment)    COMMENT="$2";   shift;;
+		(--change-owner) OWNER="$2";   shift;;
+		(--Code-Review) SCORE="$2";    shift;;
+		(--Verified)   VERIFIED="$2";  shift;;
+		(--Verified-oldValue) VERIFIED_OLDVALUE="$2"; shift;;
+		(--Code-Review-oldValue) CODEREVIEW_OLDVALUE="$2"; shift;;
 		(*) DieMessage "I don't understand the option '$1'.  Exiting." ;;
 	esac
 	shift
