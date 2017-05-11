@@ -68,6 +68,8 @@ if [[ -z "$CHANGEID" ]] ||   \
 	exit 1
 fi
 
-MESSAGE="$UPLOADER uploaded $TOPIC (patchset $PATCHSET) for $PROJECT/$BRANCH $CHANGEURL"
+SUBJECT=$(git --git-dir="$GIT_DIR" show -s --format=%s $COMMIT)
+
+MESSAGE="${UPLOADER%% (*} published patchset $PATCHSET for \`$PROJECT\` at $CHANGEURL: $SUBJECT"
 echo "$MESSAGE" | SendMessage
 

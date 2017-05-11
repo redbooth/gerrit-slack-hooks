@@ -81,6 +81,11 @@ else
 	SCORE_BLOCK=" ($SCORE)"
 fi
 
+SUBJECT=$(git --git-dir="$GIT_DIR" show -s --format=%s $COMMIT)
 
-MESSAGE="$AUTHOR commented on $CHANGEURL $SCORE_BLOCK: $COMMENT"
-echo "$MESSAGE" | SendMessage
+# Skip +1s by Jenkins
+AUTHOR_NAME="${AUTHOR%% (*}"
+if [ "$AUTHOR_NAME" != "Jenkins" ] ; then
+       MESSAGE="$AUTHOR_NAME commented on $CHANGEURL: $SUBJECT $SCORE_BLOCK: $COMMENT"
+       echo "$MESSAGE" | SendMessage
+fi
